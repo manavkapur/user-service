@@ -1,11 +1,11 @@
 server:
-  port: ${PORT:8086}
+  port: ${PORT:8086} # Render uses PORT, not server.port directly
 
 spring:
   application:
     name: user-service
 
-  # ---------- DATABASE (use env vars) ----------
+  # ---------- DATABASE ----------
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/user_service_db}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
@@ -25,7 +25,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
 
-  # ---------- REDIS (Upstash) ----------
+  # ---------- REDIS ----------
   redis:
     host: ${SPRING_REDIS_HOST:localhost}
     port: ${SPRING_REDIS_PORT:6379}
@@ -44,12 +44,16 @@ management:
 # ---------- EUREKA ----------
 eureka:
   client:
+    fetch-registry: true
+    register-with-eureka: true
     service-url:
-      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+      defaultZone: ${EUREKA_URL:https://eureka-server-sk4j.onrender.com/eureka/}
   instance:
-    hostname: ${EUREKA_HOSTNAME:localhost}
-    prefer-ip-address: false
-    instance-id: ${spring.application.name}:${server.port}
+    prefer-ip-address: true
+    hostname: ${spring.application.name}
+    instance-id: ${spring.application.name}:${random.value}
+    metadata-map:
+      management.port: ${server.port}
 
 # ---------- APP INFO ----------
 info:
