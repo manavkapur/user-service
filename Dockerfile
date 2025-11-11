@@ -11,4 +11,5 @@ COPY target/user-service-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
 
 # Start the app and bind to Cloud Run's port
-ENTRYPOINT ["java", "-Dserver.port=${PORT}", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-Dserver.port=${PORT}", "-jar", "app.jar"]
+
