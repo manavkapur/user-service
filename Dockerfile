@@ -1,8 +1,14 @@
+# Use official lightweight JDK image
 FROM eclipse-temurin:17-jdk-alpine
 
+# Set working directory
 WORKDIR /app
-COPY target/user-service.jar app.jar
 
+# Copy the built JAR (with the correct name!)
+COPY target/user-service-0.0.1-SNAPSHOT.jar app.jar
+
+# Expose Cloud Run’s default port
 EXPOSE 8080
 
+# Start the app and bind to Cloud Run's port
 ENTRYPOINT ["java", "-Dserver.port=${PORT}", "-jar", "/app.jar"]
