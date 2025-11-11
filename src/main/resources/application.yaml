@@ -1,5 +1,6 @@
 server:
-  port: ${PORT:8080} # Cloud Run uses PORT environment variable
+  # ✅ Cloud Run provides PORT automatically
+  port: ${PORT:8080}
 
 spring:
   application:
@@ -7,15 +8,18 @@ spring:
 
   # ---------- DATABASE ----------
   datasource:
+    # ✅ Use environment variable or local fallback
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/user_service_db}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: ${SPRING_DATASOURCE_MAX_POOL:10}
-      maxLifetime: 30000        # Prevent stale connections
+      maxLifetime: 30000
       idleTimeout: 10000
       minimumIdle: 1
+      # ✅ Prevent Cloud Run from crashing if DB init is slow
+      initialization-fail-timeout: 0
 
   # ---------- JPA ----------
   jpa:
@@ -47,14 +51,24 @@ management:
 # ---------- EUREKA ----------
 eureka:
   client:
+    # ✅ Always true — Cloud Run can register fine now
     fetch-registry: true
     register-with-eureka: true
     service-url:
       defaultZone: ${EUREKA_URL:https://eureka-server-142422750329.asia-southeast1.run.app/eureka/}
 
+    # ✅ Add resilience so it won’t crash if Eureka is temporarily unavailable
+    eureka-server-connect-timeout-seconds: 5
+    eureka-server-read-timeout-seconds: 8
+    should-unregister-on-shutdown: true
+    initial-instance-info-replication-interval-seconds: 5
+    registry-fetch-interval-seconds: 5
+    serviceUrlPollIntervalSeconds: 60
+    wait-time-in-ms-when-sync-empty: 0
+
   instance:
     prefer-ip-address: false
-    # ✅ Do NOT include https:// in hostname — just the domain
+    # ✅ Only the hostname — no "https://"
     hostname: ${CLOUD_RUN_HOST:user-service-142422750329.asia-southeast1.run.app}
     instance-id: ${spring.application.name}:${random.value}
     non-secure-port-enabled: false
