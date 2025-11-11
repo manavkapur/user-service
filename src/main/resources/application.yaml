@@ -1,5 +1,5 @@
 server:
-  port: ${PORT:8086} # Render uses PORT, not server.port directly
+  port: ${PORT:8086} # Cloud Run uses PORT environment variable
 
 spring:
   application:
@@ -13,6 +13,9 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: ${SPRING_DATASOURCE_MAX_POOL:10}
+      maxLifetime: 30000        # Prevent stale connections
+      idleTimeout: 10000
+      minimumIdle: 1
 
   # ---------- JPA ----------
   jpa:
@@ -49,9 +52,13 @@ eureka:
     service-url:
       defaultZone: ${EUREKA_URL:https://eureka-server-142422750329.asia-southeast1.run.app/eureka/}
   instance:
-    prefer-ip-address: true
-    hostname: ${spring.application.name}
+    prefer-ip-address: false
+    hostname: ${CLOUD_RUN_URL}
     instance-id: ${spring.application.name}:${random.value}
+    non-secure-port-enabled: false
+    secure-port-enabled: true
+    status-page-url: ${CLOUD_RUN_URL}/actuator/health
+    health-check-url: ${CLOUD_RUN_URL}/actuator/health
     metadata-map:
       management.port: ${server.port}
 
